@@ -3,6 +3,7 @@ var assert = require('assert');
 var path = require('path');
 var Reader = require('../src/Reader.js');
 var Token = require('../src/Token.js');
+var Lexer = require('../src/Lexer.js');
 
 describe('Reader.js',function(done){
   it('should read one character at a time',function(){
@@ -28,3 +29,25 @@ describe('Token.js', function(){
     assert.equal(token.getType(),'NUMBER'); 
   });
 });
+
+describe('Lexer.js', function(){
+  it('should be able to read the input stream',function(){
+    var charReader = Reader(path.join(__dirname,'test.txt'));
+    var data = []; 
+    charReader.on('readable',function(){
+      var chunk;
+      var lexer = new Lexer(charReader);
+      
+      lexer.consume();
+      chunk = lexer.getCurrentChar();
+      while(chunk != null){
+        data.push(chunk);
+        lexer.consume();
+        chunk = lexer.getCurrentChar();
+      }
+      assert.deepEqual(data,'Hello, world!\n'.split(''));
+    });
+  });
+});
+
+
