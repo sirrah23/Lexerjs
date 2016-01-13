@@ -66,3 +66,5 @@ function Lexer(inputStream){
     }
   }
 }
+
+module.exports = Lexer;

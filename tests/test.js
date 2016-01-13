@@ -33,7 +33,7 @@ describe('Token.js', function(){
 describe('Lexer.js', function(){
   it('should be able to read the input stream',function(){
     var charReader = Reader(path.join(__dirname,'test.txt'));
-    var data = []; 
+    var lexdata = []; 
     charReader.on('readable',function(){
       var chunk;
       var lexer = new Lexer(charReader);
@@ -41,11 +41,11 @@ describe('Lexer.js', function(){
       lexer.consume();
       chunk = lexer.getCurrentChar();
       while(chunk != null){
-        data.push(chunk);
+        lexdata.push(chunk);
         lexer.consume();
         chunk = lexer.getCurrentChar();
       }
-      assert.deepEqual(data,'Hello, world!\n'.split(''));
+      assert.deepEqual(lexdata,'Hello, world!\n'.split(''));
     });
   });
 });
