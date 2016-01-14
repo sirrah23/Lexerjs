@@ -48,6 +48,24 @@ describe('Lexer.js', function(){
       assert.deepEqual(lexdata,'Hello, world!\n'.split(''));
     });
   });
+
+  it('should skip over spaces and other junk characters', function(){
+    var charReader = Reader(path.join(__dirname,'test.txt'));
+    var lexdata = []; 
+    charReader.on('readable',function(){
+      var chunk;
+      var lexer = new Lexer(charReader);
+      
+      lexer.eatLayout();
+      chunk = lexer.getCurrentChar();
+      while(chunk != null){
+        lexdata.push(chunk);
+        lexer.eatLayout();
+        chunk = lexer.getCurrentChar();
+      }
+      assert.deepEqual(lexdata,'Hello,world!\n'.split(''));
+    });
+  });
 });
 
 
