@@ -5,6 +5,7 @@
  *
  */
 var Token = require('./Token.js');
+var path = require('path');
 
 function Lexer(inputStream){
   var inputStream = inputStream;
@@ -46,12 +47,12 @@ function Lexer(inputStream){
 
   /*Returns true if input character is a letter or a digit*/
   this.isLetterOrDigit = function(c){
-    return isDigit(c) || isLetter(c);
+    return this.isDigit(c) || this.isLetter(c);
   }
 
   /*Returns true if input character is an identifier*/
   this.isIdentifier = function(c){
-    return isLetterOrDigit(c) || c=='_';
+    return this.isLetterOrDigit(c) || c=='_';
   }
 
   /*Returns the next character from the file being lexed*/
@@ -61,8 +62,8 @@ function Lexer(inputStream){
  
   /*Skip all junk characters when reading in input file*/
   this.eatLayout = function(){
-    while(currentChar != null && currentChar.charCodeAt(0) != NaN && currentChar.charCodeAt(0) <= 32){
-      consume();
+    while(currentChar != null && (isNaN(currentChar.charCodeAt(0)) || currentChar.charCodeAt(0) <= 32)){
+      this.consume();
     }
   }
   /*The main function, gets the next available token from the file*/
@@ -74,29 +75,64 @@ function Lexer(inputStream){
       running = false;
       return;
     //Depending on the character decide what to do next
-    }else if (isLetter(currentCharacter)){
-      recognizeIdentifier();
-    }else if (isDigit(currentCharacter)){
-      recognizeDigit();
+    }else if (this.isLetter(currentChar)){
+      this.recognizeIdentifier();
+    }else if (this.isDigit(currentChar)){
+      this.recognizeDigit();
     }else{
-      switch(currentCharacter){
+      switch(currentChar){
         case '-': case '+': case '/': case '*':
         case '=': case '(': case ')': case '[':
         case ']': case ',': case '{': case '}':
         case ';': case '.':
-          recognize_symbol();
+          this.recognize_symbol();
           break;            
         case '\'':
-          recognizeCharacter();
+          this.recognizeCharacter();
           break;
         case '\"':
-          recoginizeString();
+          this.recoginizeString();
           break;
         default:
           console.log('unrecognized character', currentCharacter);
           break;
       } 
     }
+  }
+  //Will keep reading until an identifier is not possible
+  this.recognizeIdentifier = function() {
+    while (this.isIdentifier(currentChar)){
+      currLexeme.push(currentChar);
+      this.consume();
+    }
+    var file = path.resolve(inputStream.path); //Path to file that is being read from
+    var nextToken = new Token(file, currLexeme.join(''), 'IDENTIFIER');
+    tokens.push(nextToken); //Keeping track of our tokens
+    currLexeme=[]; //Reset lexeme to prepare for next call to getToken;
+    return;
+  }
+
+  //Will keep reading until a number is not possible
+  this.recognizeDigit = function(){
+    //Keep recognizing numbers while they're streaming in
+    while (this.isDigit(currentChar)){
+      currLexeme.push(currentChar);
+      this.consume();
+    }
+    //If a . is the next character then the number should be a decimal
+    if (currentChar == '.') {
+      currLexeme.push(currentChar);
+      
+      while (this.isDigit(currentChar)){
+        currLexeme.push(currentChar);
+        this.consume();
+      }
+    }
+    //Repeated code, make DRY later...
+    var file = path.resolve(inputStream.path); //Path to file that is being read from
+    var nextToken = new Token(file, currLexeme.join(''), 'NUMBER');
+    tokens.push(nextToken); //Keeping track of our tokens
+    currLexeme=[]; //Reset lexeme to prepare for next call to getToken;
   }
 }
 
