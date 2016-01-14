@@ -10,7 +10,7 @@ function Lexer(inputStream){
   var inputStream = inputStream;
   var running = true;
   var currentChar = '';
-  var currLexeme='';
+  var currLexeme=[];
   var tokens = [];
 
   /*GETTERS START*/
@@ -63,6 +63,39 @@ function Lexer(inputStream){
   this.eatLayout = function(){
     while(currentChar != null && currentChar.charCodeAt(0) != NaN && currentChar.charCodeAt(0) <= 32){
       consume();
+    }
+  }
+  /*The main function, gets the next available token from the file*/
+  this.getNextToken = function(){
+    this.eatLayout();
+   
+    //Done reading the file 
+    if (currentChar == null){
+      running = false;
+      return;
+    //Depending on the character decide what to do next
+    }else if (isLetter(currentCharacter)){
+      recognizeIdentifier();
+    }else if (isDigit(currentCharacter)){
+      recognizeDigit();
+    }else{
+      switch(currentCharacter){
+        case '-': case '+': case '/': case '*':
+        case '=': case '(': case ')': case '[':
+        case ']': case ',': case '{': case '}':
+        case ';': case '.':
+          recognize_symbol();
+          break;            
+        case '\'':
+          recognizeCharacter();
+          break;
+        case '\"':
+          recoginizeString();
+          break;
+        default:
+          console.log('unrecognized character', currentCharacter);
+          break;
+      } 
     }
   }
 }
