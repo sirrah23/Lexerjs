@@ -109,7 +109,7 @@ describe('Lexer.js', function(){
     });
   });
 
-  it('should tokenize identifiers', function(done){
+  it('should tokenize letter only identifiers', function(done){
     var expected = 1;
     function checkDone(){
       if(expected>0){
@@ -126,6 +126,29 @@ describe('Lexer.js', function(){
         lexer.getNextToken();
       }
       assert.deepEqual(lexer.getTokens().map(function(t){return t.getContents()}),'Hello World'.split(' '));
+      checkDone();
+    });
+  });
+
+  it('should tokenize digits and identifiers', function(done){
+    var expected = 1;
+    function checkDone(){
+      if(expected>0){
+        expected--;
+        done();
+      }
+    }
+    var charReader = Reader(path.join(__dirname,'identest2.txt'));
+    var lexdata = [];
+    charReader.on('readable',function(){
+      var chunk;
+      var lexer = new Lexer(charReader);
+      while (lexer.isRunning()){
+        lexer.getNextToken();
+      }
+      assert.deepEqual(lexer
+        .getTokens()
+        .map(function(t){return t.getContents()}),['Hello123','World','456','This','Is','A','Test']);
       checkDone();
     });
   });
