@@ -109,9 +109,7 @@ describe('Lexer.js', function(){
     });
   });
 
-
-/*
-  it('should tokenize numbers and identifiers', function(done){
+  it('should tokenize identifiers', function(done){
     var expected = 1;
     function checkDone(){
       if(expected>0){
@@ -119,7 +117,7 @@ describe('Lexer.js', function(){
         done();
       }
     }
-    var charReader = Reader(path.join(__dirname,'test2.txt'));
+    var charReader = Reader(path.join(__dirname,'identest.txt'));
     var lexdata = [];
     charReader.on('readable',function(){
       var chunk;
@@ -127,10 +125,8 @@ describe('Lexer.js', function(){
       while (lexer.isRunning()){
         lexer.getNextToken();
       }
-      assert.deepEqual(lexer.getTokens(),'this is a test 1234 123.123 2'.split(''));
-      console.log(lexer.getTokens());
+      assert.deepEqual(lexer.getTokens().map(function(t){return t.getContents()}),'Hello World'.split(' '));
       checkDone();
     });
   });
-*/
 });

@@ -48,7 +48,7 @@ function Lexer(inputStream){
     if (c == null){
       return false;
     }
-    return c.match(/[a-z]/);
+    return c.match(/[a-z]/i);
   }
 
   /*Returns true if input character is a letter or a digit*/
@@ -100,7 +100,7 @@ function Lexer(inputStream){
           this.recoginizeString();
           break;
         default:
-          console.log('unrecognized character', currentCharacter);
+          console.log('unrecognized character', currentChar);
           break;
       }
     }
