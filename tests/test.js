@@ -32,7 +32,7 @@ describe('Token.js', function(){
     var token = new Token('file.foo', 123, 'NUMBER');
     assert.equal(token.getSource(),'file.foo');
     assert.equal(token.getContents(),123);
-    assert.equal(token.getType(),'NUMBER'); 
+    assert.equal(token.getType(),'NUMBER');
   });
 });
 
@@ -46,11 +46,11 @@ describe('Lexer.js', function(){
       }
     }
     var charReader = Reader(path.join(__dirname,'test.txt'));
-    var lexdata = []; 
+    var lexdata = [];
     charReader.on('readable',function(){
       var chunk;
       var lexer = new Lexer(charReader);
-      
+
       lexer.consume();
       chunk = lexer.getCurrentChar();
       while(chunk != null){
@@ -72,7 +72,7 @@ describe('Lexer.js', function(){
       }
     }
     var charReader = Reader(path.join(__dirname,'test3.txt'));
-    var lexdata = []; 
+    var lexdata = [];
     charReader.on('readable',function(){
       var chunk;
       var lexer = new Lexer(charReader);
@@ -88,6 +88,29 @@ describe('Lexer.js', function(){
     });
   });
 
+  it('should tokenize numbers', function(done){
+    var expected = 1;
+    function checkDone(){
+      if(expected>0){
+        expected--;
+        done();
+      }
+    }
+    var charReader = Reader(path.join(__dirname,'digittest.txt'));
+    var lexdata = [];
+    charReader.on('readable',function(){
+      var chunk;
+      var lexer = new Lexer(charReader);
+      while (lexer.isRunning()){
+        lexer.getNextToken();
+      }
+      assert.deepEqual(lexer.getTokens().map(function(t){return t.getContents()}),'1234 567'.split(' '));
+      checkDone();
+    });
+  });
+
+
+/*
   it('should tokenize numbers and identifiers', function(done){
     var expected = 1;
     function checkDone(){
@@ -97,7 +120,7 @@ describe('Lexer.js', function(){
       }
     }
     var charReader = Reader(path.join(__dirname,'test2.txt'));
-    var lexdata = []; 
+    var lexdata = [];
     charReader.on('readable',function(){
       var chunk;
       var lexer = new Lexer(charReader);
@@ -109,4 +132,5 @@ describe('Lexer.js', function(){
       checkDone();
     });
   });
+*/
 });

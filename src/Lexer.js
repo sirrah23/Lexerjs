@@ -15,7 +15,7 @@ function Lexer(inputStream){
   var tokens = [];
 
   /*GETTERS START*/
-  
+
   this.getCurrentChar = function(){
     return currentChar;
   }
@@ -37,11 +37,17 @@ function Lexer(inputStream){
 
   /*Returns true if input character is a digit*/
   this.isDigit = function(c){
-    return !isNaN(c);
+    if (c == null){
+      return false;
+    }
+    return c.match(/[0-9]/);
   }
 
   /*Returns true if input character is a letter*/
   this.isLetter = function(c){
+    if (c == null){
+      return false;
+    }
     return c.match(/[a-z]/);
   }
 
@@ -59,7 +65,7 @@ function Lexer(inputStream){
   this.consume = function(){
     currentChar = inputStream.read(1);
   }
- 
+
   /*Skip all junk characters when reading in input file*/
   this.eatLayout = function(){
     while(currentChar != null && (isNaN(currentChar.charCodeAt(0)) || currentChar.charCodeAt(0) <= 32)){
@@ -69,8 +75,8 @@ function Lexer(inputStream){
   /*The main function, gets the next available token from the file*/
   this.getNextToken = function(){
     this.eatLayout();
-   
-    //Done reading the file 
+
+    //Done reading the file
     if (currentChar == null){
       running = false;
       return;
@@ -86,7 +92,7 @@ function Lexer(inputStream){
         case ']': case ',': case '{': case '}':
         case ';': case '.':
           this.recognize_symbol();
-          break;            
+          break;
         case '\'':
           this.recognizeCharacter();
           break;
@@ -96,7 +102,7 @@ function Lexer(inputStream){
         default:
           console.log('unrecognized character', currentCharacter);
           break;
-      } 
+      }
     }
   }
   //Will keep reading until an identifier is not possible
@@ -122,7 +128,7 @@ function Lexer(inputStream){
     //If a . is the next character then the number should be a decimal
     if (currentChar == '.') {
       currLexeme.push(currentChar);
-      
+
       while (this.isDigit(currentChar)){
         currLexeme.push(currentChar);
         this.consume();
