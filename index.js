@@ -19,7 +19,7 @@ var displayTokens = _.once(function(){
 
 //Read the file one character at a time
 fileReader.on('readable',function(){
-  var lexer = new Lexer(fileReader);
+  var lexer = new Lexer(this);
   //Obtain tokens from file in a loop
   while (lexer.isRunning()){
     lexer.getNextToken();
