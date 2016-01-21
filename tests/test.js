@@ -5,24 +5,34 @@ var Reader = require('../src/Reader.js');
 var Token = require('../src/Token.js');
 var Lexer = require('../src/Lexer.js');
 
+/*
+* Abstract away function that makes sure
+* done is only called once, used to get
+* around the "readable" event being raised
+* again after the buffer is empty (null)
+*/
+function Finisher(done){
+  var expected = 1;
+  return function(){
+    if(expected > 0){
+      expected--;
+      done();
+    }
+  }
+}
+
 describe('Reader.js',function(){
   it('should read one character at a time',function(done){
     var data = [];
     var chunk;
-    var expected = 1;
-    function checkDone(){
-      if(expected>0){
-        expected--;
-        done();
-      }
-    }
+    var finisher = new Finisher(done);
     var charReader = Reader(path.join(__dirname,'test.txt'));
     charReader.on('readable',function(){
       while(null != (chunk = charReader.read(1))){
         data.push(chunk);
       }
       assert.deepEqual(data,'Hello, world!\n'.split(''));
-      checkDone(expected);
+      finisher();
     });
   });
 });
@@ -38,13 +48,7 @@ describe('Token.js', function(){
 
 describe('Lexer.js', function(){
   it('should be able to read the input stream',function(done){
-    var expected = 1;
-    function checkDone(){
-      if(expected>0){
-        expected--;
-        done();
-      }
-    }
+    var finisher = new Finisher(done);
     var charReader = Reader(path.join(__dirname,'test.txt'));
     var lexdata = [];
     charReader.on('readable',function(){
@@ -59,18 +63,12 @@ describe('Lexer.js', function(){
         chunk = lexer.getCurrentChar();
       }
       assert.deepEqual(lexdata,'Hello, world!\n'.split(''));
-      checkDone();
+      finisher();
     });
   });
 
   it('should skip over spaces and other junk characters', function(done){
-    var expected = 1;
-    function checkDone(){
-      if(expected>0){
-        expected--;
-        done();
-      }
-    }
+    var finisher = new Finisher(done);
     var charReader = Reader(path.join(__dirname,'test3.txt'));
     var lexdata = [];
     charReader.on('readable',function(){
@@ -84,18 +82,12 @@ describe('Lexer.js', function(){
         chunk = lexer.getCurrentChar();
       }
       assert.deepEqual(lexdata,'Hello, world!\n'.split(''));
-      checkDone();
+      finisher();
     });
   });
 
   it('should tokenize numbers', function(done){
-    var expected = 1;
-    function checkDone(){
-      if(expected>0){
-        expected--;
-        done();
-      }
-    }
+    var finisher = new Finisher(done);
     var charReader = Reader(path.join(__dirname,'digittest.txt'));
     var lexdata = [];
     charReader.on('readable',function(){
@@ -105,18 +97,12 @@ describe('Lexer.js', function(){
         lexer.getNextToken();
       }
       assert.deepEqual(lexer.getTokens().map(function(t){return t.getContents()}),'1234 567'.split(' '));
-      checkDone();
+      finisher();
     });
   });
 
   it('should tokenize letter only identifiers', function(done){
-    var expected = 1;
-    function checkDone(){
-      if(expected>0){
-        expected--;
-        done();
-      }
-    }
+    var finisher = new Finisher(done);
     var charReader = Reader(path.join(__dirname,'identest.txt'));
     var lexdata = [];
     charReader.on('readable',function(){
@@ -126,18 +112,12 @@ describe('Lexer.js', function(){
         lexer.getNextToken();
       }
       assert.deepEqual(lexer.getTokens().map(function(t){return t.getContents()}),'Hello World'.split(' '));
-      checkDone();
+      finisher();
     });
   });
 
   it('should tokenize digits and identifiers', function(done){
-    var expected = 1;
-    function checkDone(){
-      if(expected>0){
-        expected--;
-        done();
-      }
-    }
+    var finisher = new Finisher(done);
     var charReader = Reader(path.join(__dirname,'identest2.txt'));
     var lexdata = [];
     charReader.on('readable',function(){
@@ -149,7 +129,7 @@ describe('Lexer.js', function(){
       assert.deepEqual(lexer
         .getTokens()
         .map(function(t){return t.getContents()}),['Hello123','World','456','This','Is','A','Test']);
-      checkDone();
+      finisher();
     });
   });
 });
